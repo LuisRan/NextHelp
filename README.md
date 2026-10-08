@@ -6,9 +6,9 @@
 
 NextHelp escucha una reunión en vivo (tu micrófono y el audio del sistema), la transcribe **sin salir de tu equipo**, y con un atajo de teclado te sugiere una respuesta breve a lo último que te preguntaron, apoyándose en tus propios documentos. Además incluye un teleprompter que avanza solo según lo que vas diciendo y una ventana que no aparece cuando compartes pantalla.
 
-> ⚠️ **Plataforma.** La aplicación es una app **nativa de macOS 26+** hecha con SwiftUI (usa `ScreenCaptureKit`, `AppKit` y `SpeechAnalyzer`, que no existen en iOS). El proyecto de Xcode se creó con la plantilla multiplataforma, por eso `project.pbxproj` conserva claves de iOS, pero **ningún archivo fuente compila para iOS**. Todo lo que se documenta aquí corresponde a la versión de macOS.
+> **Plataforma.** La aplicación es una app **nativa de macOS 26+** hecha con SwiftUI (usa `ScreenCaptureKit`, `AppKit` y `SpeechAnalyzer`, que no existen en iOS). El proyecto de Xcode se creó con la plantilla multiplataforma, por eso `project.pbxproj` conserva claves de iOS, pero **ningún archivo fuente compila para iOS**. Todo lo que se documenta aquí corresponde a la versión de macOS.
 
-> 🧾 **Estado de este documento.** Todo lo descrito en las Partes 1 y 2 sale del código real del repositorio (se citan archivos, líneas y fragmentos). Lo que requiere evidencia que solo el equipo puede generar —capturas, ligas de issue/PR/CI, resultados reales de pruebas, nombres de integrantes— está marcado con **☐ Pendiente** y **no** se rellenó con datos inventados.
+> **Estado de este documento.** Todo lo descrito en las Partes 1 y 2 sale del código real del repositorio (se citan archivos, líneas y fragmentos). Lo que requiere evidencia que solo el equipo puede generar —capturas, ligas de issue/PR/CI, resultados reales de pruebas, nombres de integrantes— está marcado con **PENDIENTE** y **no** se rellenó con datos inventados.
 
 ## Contenido
 
@@ -25,8 +25,8 @@ NextHelp escucha una reunión en vivo (tu micrófono y el audio del sistema), la
 | Integrante | Usuario de GitHub | Aportación principal |
 |---|---|---|
 | Luis Rangel | [@LuisRan](https://github.com/LuisRan) | Captura de audio, transcripción, servicio RAG |
-| ☐ Pendiente | ☐ | ☐ |
-| ☐ Pendiente | ☐ | ☐ |
+| PENDIENTE | PENDIENTE | PENDIENTE |
+| PENDIENTE | PENDIENTE | PENDIENTE |
 
 ---
 
@@ -44,9 +44,9 @@ NextHelp escucha una reunión en vivo (tu micrófono y el audio del sistema), la
 | **Criterio de éxito** | Ver la respuesta con sus fuentes en el panel *Respuestas* sin salir de la llamada, **sin que ningún dato salga de la Mac** (ver criterio de aceptación en 1.3). |
 | **Alcance de la primera versión** | Transcripción en vivo de dos fuentes («Tú» y «Ellos»); corrección y borrado manual de líneas; responder a lo último o a líneas seleccionadas, con aclaración opcional; chat libre sobre la reunión; perfiles de documentos (RAG local); teleprompter con avance por voz; guardado automático en `.txt`; ventana invisible al compartir pantalla, siempre encima y con transparencia. |
 | **Funciones aplazadas (a propósito)** | Versión para iOS/iPadOS; separar a más de una persona en «Ellos»; resumen automático al terminar la reunión; subir documentos desde la interfaz (hoy es con script); idiomas distintos de es-MX; sincronización entre equipos; responder sin intervención del usuario. |
-| **Hipótesis pendiente de validar** | «Un modelo de 4 B parámetros cuantizado, corriendo en una Mac M1 de 8 GB, responde con calidad útil en pocos segundos». **No está medida todavía** (☐ Pendiente: registrar tiempos reales en `docs/pruebas.md`). |
+| **Hipótesis pendiente de validar** | «Un modelo de 4 B parámetros cuantizado, corriendo en una Mac M1 de 8 GB, responde con calidad útil en pocos segundos». **No está medida todavía** (PENDIENTE: registrar tiempos reales en `docs/pruebas.md`). |
 
-**Evidencia que sostiene la idea (honesta).** Aún no hay validación con usuarios externos: la idea es una **hipótesis sin validar con terceros**. Lo que sí existe son pruebas de uso propias del autor con la app funcionando: cuatro transcripciones guardadas (28-sep-2026 y 30-sep-2026) y un registro de diagnóstico con 67 frases finales reconocidas. ☐ Pendiente: entrevistar al menos a dos usuarios objetivo y registrar fecha, método y resultado.
+**Evidencia que sostiene la idea (honesta).** Aún no hay validación con usuarios externos: la idea es una **hipótesis sin validar con terceros**. Lo que sí existe son pruebas de uso propias del autor con la app funcionando: cuatro transcripciones guardadas (28-sep-2026 y 30-sep-2026) y un registro de diagnóstico con 67 frases finales reconocidas. PENDIENTE: entrevistar al menos a dos usuarios objetivo y registrar fecha, método y resultado.
 
 ## 1.2 Material visual
 
@@ -55,26 +55,26 @@ NextHelp escucha una reunión en vivo (tu micrófono y el audio del sistema), la
 La ventana tiene una barra superior y hasta tres paneles (`HSplitView`). Los estados que no son ruta feliz están anotados con `[E1]`…`[E5]`.
 
 ```text
-┌──────────────────────────────────────────────────────────────────────────────────────────┐
-│ [Perfil ▾ servicenow] [＋Nueva reunión] [📁Transcripciones] [Teleprompter] [👁 Invisible]│
-│ [📌 Encima de todo] [◐───]                      [🔈 Silenciar audio interno] [🎤 Mutear] │
-├───────────────────────────┬────────────────────────────┬─────────────────────────────────┤
-│ TRANSCRIPCIÓN             │ RESPUESTAS            [⟳] │ TELEPROMPTER      guion.md  📄 📁│
-│                           │                            │                                 │
-│ Ellos: ¿Cómo cierran un   │ ┌────────────────────────┐ │   (paso anterior, atenuado)     │
-│  incidente P1?            │ │ ✨ servicenow  18:20   │ │ ┌─────────────────────────────┐ │
-│ Tú: Buena pregunta, …  ✏️ │ │ "¿Cómo cierran un…"    │ │ │ PASO ACTUAL, letra grande   │ │
-│ Ellos: …(en cursiva =     │ │ Requiere aprobación    │ │ │ 👆 Acción a hacer en pantalla│ │
-│        aún sin confirmar) │ │ del lead de guardia.   │ │ └─────────────────────────────┘ │
-│                           │ │ Fuentes: manual.txt    │ │   (paso siguiente)              │
-│ Clic en líneas para       │ └────────────────────────┘ │                                 │
-│ seleccionarlas            │                            │ [‹] Paso 2 de 6 [›] ▓▓▓░░ [⏽]  │
-│ [Aclaración opcional    ] │ [Pregúntale algo sobre la  │       Avance por voz            │
-│ [✨ Responder lo último ⌘↩]│  reunión…            ][➤] │                                 │
-│ [E4] texto rojo de error  │ [E1] «Pensando…» + spinner │ [E2] «Abre un guion para        │
-│                           │ [E3] «Aquí aparecerán las  │       empezar.»                 │
-│                           │      respuestas.»          │                                 │
-└───────────────────────────┴────────────────────────────┴─────────────────────────────────┘
++-----------------------------------------------------------------------------------------+
+| [Perfil v servicenow] [+ Nueva reunion] [Transcripciones] [Teleprompter] [Invisible]    |
+| [Encima de todo] [o---]                         [Silenciar audio interno] [Mutear mic]  |
++--------------------------+-----------------------------+--------------------------------+
+| TRANSCRIPCION            | RESPUESTAS          [Borrar]| TELEPROMPTER  guion.md [abrir] |
+|                          |                             |                                |
+| Ellos: Como cierran un   | +-------------------------+ |   (paso anterior, atenuado)    |
+|  incidente P1?           | | servicenow       18:20  | | +----------------------------+ |
+| Tu: Buena pregunta, ...  | | "Como cierran un..."    | | | PASO ACTUAL, letra grande  | |
+| Ellos: ... (en cursiva = | | Requiere aprobacion     | | | ACCION a hacer en pantalla | |
+|        sin confirmar)    | | del lead de guardia.    | | +----------------------------+ |
+|                          | | Fuentes: manual.txt     | |   (paso siguiente)             |
+| Clic en lineas para      | +-------------------------+ |                                |
+| seleccionarlas           |                             |                                |
+| [Aclaracion opcional   ] | [Preguntale algo sobre la   | [<] Paso 2 de 6 [>] ###-- [x]  |
+| [Responder lo ultimo   ] |  reunion...            ][>] |        Avance por voz          |
+| [E4] texto rojo de error | [E1] "Pensando..." spinner  | [E2] "Abre un guion para       |
+|                          | [E3] "Aqui apareceran las   |       empezar."                |
+|                          |      respuestas."           |                                |
++--------------------------+-----------------------------+--------------------------------+
 ```
 
 | Marca | Estado | Qué ve el usuario | Dónde está en el código |
@@ -85,7 +85,7 @@ La ventana tiene una barra superior y hasta tres paneles (`HSplitView`). Los est
 | **[E4]** | Dato inválido | «Todavía no hay nada transcrito para responder.» (texto rojo) | `askNow()` |
 | **[E5]** | Error de servicio | Tarjeta de respuesta con el mensaje en rojo (p. ej. «No me pude conectar a Ollama en localhost:11434…») | `askNow()` · `catch`, `RAGClient.post` |
 
-> *Pie de figura:* boceto en texto de la interfaz, elaborado con **Claude (IA)** a partir de `ContentView.swift` y revisado por el equipo. ☐ Pendiente: sustituir o complementar con un boceto a mano/Figma en `docs/img/` (el curso pide al menos uno).
+> *Pie de figura:* boceto en texto de la interfaz, elaborado con **Claude (IA)** a partir de `ContentView.swift` y revisado por el equipo. PENDIENTE: sustituir o complementar con un boceto a mano/Figma en `docs/img/` (el curso pide al menos uno).
 
 ### Recorrido del usuario
 
@@ -134,7 +134,7 @@ flowchart TD
 - [x] Ficha de idea (esta sección; copiar a `docs/idea.md` si el docente exige el archivo separado).
 - [x] Bosquejo, diagrama del recorrido y estados no felices.
 - [x] Historia de usuario con criterio de aceptación.
-- [ ] ☐ Pendiente: exposición en clase (máx. 5 min).
+- [ ] Pendiente: exposición en clase (máx. 5 min).
 
 ---
 
@@ -174,7 +174,7 @@ NextHelp/
 │   └── ejemplo_demo_fso.md            ← guion de ejemplo para el teleprompter
 ├── setup.sh                           ← instala Ollama, modelo de embeddings y venv
 ├── ingest_docs.sh                     ← indexa docs/<perfil>/* en el RAG
-└── .github/workflows/                 ← ☐ Pendiente: CI (ver más abajo)
+└── .github/workflows/                 ← PENDIENTE: CI (ver más abajo)
 ```
 
 | Elemento | Dónde / qué es |
@@ -202,7 +202,7 @@ NextHelp/
 
 ### Integración continua (`.github/workflows`)
 
-El repositorio **todavía no tiene flujos de CI**. Propuesta (☐ Pendiente: añadir y dejar ejecutándose antes de entregar):
+El repositorio **todavía no tiene flujos de CI**. Propuesta (PENDIENTE: añadir y dejar ejecutándose antes de entregar):
 
 | Flujo | Comprueba | Nota |
 |---|---|---|
@@ -227,9 +227,9 @@ jobs:
 
 ### Licencia y procedencia de recursos (`docs/licencias.md`)
 
-| Recurso | Uso | Licencia (☐ verificar antes de entregar) |
+| Recurso | Uso | Licencia (verificar antes de entregar) |
 |---|---|---|
-| Código de NextHelp | — | ☐ Pendiente: elegir y agregar `LICENSE` (p. ej. MIT). |
+| Código de NextHelp | — | PENDIENTE: elegir y agregar `LICENSE` (p. ej. MIT). |
 | Ollama | Ejecuta los modelos localmente | MIT |
 | Qwen3 `qwen3:4b-instruct-2507-q4_K_M` | Generación de respuestas | Apache 2.0 |
 | `nomic-embed-text` | Embeddings para el RAG | Apache 2.0 |
@@ -237,7 +237,7 @@ jobs:
 | `sqlite-vec` | Búsqueda vectorial dentro de SQLite | MIT / Apache 2.0 |
 | `requests` · `python-multipart` · `pypdf` | HTTP hacia Ollama · formularios · lectura de PDF | Apache 2.0 · Apache 2.0 · BSD-3 |
 | Frameworks de Apple (SwiftUI, AppKit, AVFoundation, Speech, ScreenCaptureKit, CoreAudio) | Interfaz, audio y voz | Términos del SDK de Apple |
-| `docs/servicenow/fso_financial_services_operations.txt` | Documento de ejemplo del RAG (17 KB) | ☐ Pendiente: confirmar procedencia (resumen propio de documentación pública de ServiceNow) |
+| `docs/servicenow/fso_financial_services_operations.txt` | Documento de ejemplo del RAG (17 KB) | PENDIENTE: confirmar procedencia (resumen propio de documentación pública de ServiceNow) |
 
 ## 2.2 Arquitectura de la aplicación
 
@@ -480,11 +480,11 @@ answers.insert(AnswerEntry(question: shownQuestion, answer: response.answer, err
 |---|---|
 | Equipo | MacBook Air con Apple Silicon (M1, 8 GB de RAM) |
 | Sistema operativo | **macOS 26** (mínimo del proyecto: `MACOSX_DEPLOYMENT_TARGET = 26.0`; `SpeechAnalyzer` no existe antes) |
-| IDE | Xcode 26.x (el proyecto registra `CreatedOnToolsVersion = 26.3`, formato `objectVersion = 90`) — ☐ anotar la versión exacta de cada integrante (`xcodebuild -version`) |
+| IDE | Xcode 26.x (el proyecto registra `CreatedOnToolsVersion = 26.3`, formato `objectVersion = 90`) — anotar la versión exacta de cada integrante (`xcodebuild -version`) |
 | Swift | Modo de lenguaje 5.0, aislamiento por defecto `MainActor` |
 | Python | 3.14.7 (Homebrew) — el venv del autor se creó con esa versión |
 | Gestor de paquetes | Homebrew (lo exige `setup.sh`) |
-| Ollama | ☐ anotar `ollama --version` |
+| Ollama | anotar `ollama --version` |
 | Modelos | `qwen3:4b-instruct-2507-q4_K_M` (~2.5 GB) y `nomic-embed-text` (~137 MB) |
 
 ### Pasos (en orden, sin pasos implícitos)
@@ -508,7 +508,7 @@ answers.insert(AnswerEntry(question: shownQuestion, answer: response.answer, err
    source rag_service/venv/bin/activate
    uvicorn rag_service.main:app --reload --port 8000
    ```
-   Al arrancar precarga ambos modelos; debe imprimir `✅ Modelos precargados en Ollama`.
+   Al arrancar precarga ambos modelos; debe imprimir `Modelos precargados en Ollama`.
 6. **Indexar los documentos de ejemplo** (en otra terminal, con el servicio corriendo):
    ```bash
    ./ingest_docs.sh
@@ -523,7 +523,7 @@ Nota: la app crea y usa `~/Documents/MeetingAssistant/` para `Transcripciones/`,
 
 ### Registro de problemas encontrados y cómo se resolvieron
 
-> Fuente: comentarios del código y `MeetingAssistant-debug.log` del autor. ☐ Pendiente: cada integrante agrega los problemas de **su** primera ejecución.
+> Fuente: comentarios del código y `MeetingAssistant-debug.log` del autor. PENDIENTE: cada integrante agrega los problemas de **su** primera ejecución.
 
 | # | Problema | Causa | Solución aplicada |
 |---|---|---|---|
@@ -535,8 +535,8 @@ Nota: la app crea y usa `~/Documents/MeetingAssistant/` para `Transcripciones/`,
 | 6 | La consola de Xcode se inundaba con «stream output NOT found. Dropping frame». | `ScreenCaptureKit` espera también una salida de video. | Registrar una salida `.screen` mínima (2×2 px) y escribir el diagnóstico a un archivo (`DebugLog`); por eso `ENABLE_APP_SANDBOX = NO`. |
 | 7 | Al mutear, la frase en curso quedaba colgada. | Dejar de enviar audio no cierra la frase. | Enviar **silencio** en lugar del audio real (`feed(_, silenced:)`). |
 | 8 | Una corrección manual se perdía. | El motor seguía reescribiendo el texto «en progreso». | El lápiz de edición se deshabilita hasta que la línea queda confirmada. |
-| 9 | *(abierto)* `SCStream se detuvo … code=-3815 «No se encontraron pantallas ni ventanas por capturar»` (log del 30-sep, 18:34:24). | La captura se queda sin display (p. ej. pantalla apagada o desconectada). | ☐ Sin resolver: abrir issue y reiniciar la captura al reaparecer un display. |
-| 10 | *(abierto)* El audio en inglés se transcribe mal («Ay, show you what you feels like»). | El reconocedor está fijado a `es-MX`. | ☐ Sin resolver: permitir elegir idioma por fuente (función aplazada). |
+| 9 | *(abierto)* `SCStream se detuvo … code=-3815 «No se encontraron pantallas ni ventanas por capturar»` (log del 30-sep, 18:34:24). | La captura se queda sin display (p. ej. pantalla apagada o desconectada). | Sin resolver: abrir issue y reiniciar la captura al reaparecer un display. |
+| 10 | *(abierto)* El audio en inglés se transcribe mal («Ay, show you what you feels like»). | El reconocedor está fijado a `es-MX`. | Sin resolver: permitir elegir idioma por fuente (función aplazada). |
 
 ## 2.5 Ejecución verificada por todos los integrantes
 
@@ -544,9 +544,9 @@ Cada integrante clona el repositorio, lo ejecuta y sube una captura donde se vea
 
 | Integrante | Archivo de evidencia | Estado |
 |---|---|---|
-| Rangel, Luis | `docs/evidencia/entrega-1/rangel-luis-entrega1.png` | ☐ Pendiente |
-| ☐ | `docs/evidencia/entrega-1/apellido-nombre-entrega1.png` | ☐ Pendiente |
-| ☐ | `docs/evidencia/entrega-1/apellido-nombre-entrega1.png` | ☐ Pendiente |
+| Rangel, Luis | `docs/evidencia/entrega-1/rangel-luis-entrega1.png` | PENDIENTE |
+| PENDIENTE | `docs/evidencia/entrega-1/apellido-nombre-entrega1.png` | PENDIENTE |
+| PENDIENTE | `docs/evidencia/entrega-1/apellido-nombre-entrega1.png` | PENDIENTE |
 
 Si alguien no logra ejecutarlo, documentar aquí el error exacto, lo que intentó y en qué estado quedó.
 
@@ -556,26 +556,26 @@ Si alguien no logra ejecutarlo, documentar aquí el error exacto, lo que intent�
 
 | ID | Caso | Pasos | Resultado esperado | Resultado real |
 |---|---|---|---|---|
-| **TC-01** | Flujo principal | 1. Servicio y Ollama arriba. 2. Perfil `servicenow`. 3. Reproducir una voz que haga una pregunta del documento. 4. Pulsar `⌘↩`. | Primera tarjeta en *Respuestas* con pregunta, respuesta de 2–4 líneas y «Fuentes: …». | ☐ Por ejecutar |
-| **TC-02** | Datos vacíos | 1. App recién abierta o tras «Nueva reunión». 2. Pulsar `⌘↩`. | Texto rojo «Todavía no hay nada transcrito para responder.»; no se crea tarjeta. | ☐ Por ejecutar |
-| **TC-03** | Dato inválido / servicio no disponible | 1. Detener `uvicorn`. 2. Pulsar `⌘↩` con texto transcrito. | Tarjeta con error en rojo y el botón vuelve a habilitarse. | ☐ Por ejecutar |
-| **TC-04** | Dependencia caída (red no aplica: todo es local) | 1. Cerrar Ollama (`brew services stop ollama`). 2. Pulsar `⌘↩`. | Mensaje «No me pude conectar a Ollama en localhost:11434. ¿Está corriendo?». | ☐ Por ejecutar |
-| **TC-05** | Recreación de la vista (equivalente a rotación en macOS) | 1. Transcribir varias líneas y seleccionar dos. 2. Redimensionar la ventana al mínimo y al máximo. 3. Ocultar y mostrar el teleprompter. | Transcripción, selección y respuestas se conservan; sin recortes que oculten botones. | ☐ Por ejecutar |
-| **TC-06** | Accesibilidad: texto ampliado | 1. Ajustes del Sistema → Accesibilidad → Pantalla → aumentar tamaño de texto. 2. Abrir la app. 3. Revisar barra y paneles. | Etiquetas legibles sin solaparse; botones con área táctil/clic suficiente; VoiceOver lee los botones. | ☐ Por ejecutar |
-| **TC-07** | Cambio de micrófono en caliente | 1. Con la app transcribiendo, conectar unos audífonos. 2. Hablar. | La captura se reinicia sola y «Tú» sigue apareciendo (log: «reiniciando micrófono»). | ☐ Por ejecutar |
-| **TC-08** | Teleprompter con avance por voz | 1. Abrir `ejemplo_demo_fso.md`. 2. Leer en voz alta el paso 1. | La barra de progreso sube y al ~60 % de palabras clave pasa al paso 2. | ☐ Por ejecutar |
-| **TC-09** | Invisibilidad al compartir | 1. Activar «Invisible al compartir». 2. Iniciar una videollamada y compartir pantalla (o `⇧⌘5`). | La ventana no aparece en lo compartido ni en la captura. | ☐ Por ejecutar |
+| **TC-01** | Flujo principal | 1. Servicio y Ollama arriba. 2. Perfil `servicenow`. 3. Reproducir una voz que haga una pregunta del documento. 4. Pulsar `⌘↩`. | Primera tarjeta en *Respuestas* con pregunta, respuesta de 2–4 líneas y «Fuentes: …». | Por ejecutar |
+| **TC-02** | Datos vacíos | 1. App recién abierta o tras «Nueva reunión». 2. Pulsar `⌘↩`. | Texto rojo «Todavía no hay nada transcrito para responder.»; no se crea tarjeta. | Por ejecutar |
+| **TC-03** | Dato inválido / servicio no disponible | 1. Detener `uvicorn`. 2. Pulsar `⌘↩` con texto transcrito. | Tarjeta con error en rojo y el botón vuelve a habilitarse. | Por ejecutar |
+| **TC-04** | Dependencia caída (red no aplica: todo es local) | 1. Cerrar Ollama (`brew services stop ollama`). 2. Pulsar `⌘↩`. | Mensaje «No me pude conectar a Ollama en localhost:11434. ¿Está corriendo?». | Por ejecutar |
+| **TC-05** | Recreación de la vista (equivalente a rotación en macOS) | 1. Transcribir varias líneas y seleccionar dos. 2. Redimensionar la ventana al mínimo y al máximo. 3. Ocultar y mostrar el teleprompter. | Transcripción, selección y respuestas se conservan; sin recortes que oculten botones. | Por ejecutar |
+| **TC-06** | Accesibilidad: texto ampliado | 1. Ajustes del Sistema → Accesibilidad → Pantalla → aumentar tamaño de texto. 2. Abrir la app. 3. Revisar barra y paneles. | Etiquetas legibles sin solaparse; botones con área táctil/clic suficiente; VoiceOver lee los botones. | Por ejecutar |
+| **TC-07** | Cambio de micrófono en caliente | 1. Con la app transcribiendo, conectar unos audífonos. 2. Hablar. | La captura se reinicia sola y «Tú» sigue apareciendo (log: «reiniciando micrófono»). | Por ejecutar |
+| **TC-08** | Teleprompter con avance por voz | 1. Abrir `ejemplo_demo_fso.md`. 2. Leer en voz alta el paso 1. | La barra de progreso sube y al ~60 % de palabras clave pasa al paso 2. | Por ejecutar |
+| **TC-09** | Invisibilidad al compartir | 1. Activar «Invisible al compartir». 2. Iniciar una videollamada y compartir pantalla (o `⇧⌘5`). | La ventana no aparece en lo compartido ni en la captura. | Por ejecutar |
 | **TC-10** | Pérdida del display (defecto conocido) | 1. Transcribir. 2. Apagar/desconectar la pantalla. | La transcripción de «Ellos» sigue o se recupera. | **Falla observada** el 30-sep-2026 18:34:24: `SCStream` se detuvo con `-3815`. Registrar como issue. |
 
-**Defectos como issues reproducibles.** ☐ Pendiente: abrir en GitHub una issue por cada fila #9 y #10 de la tabla de problemas y por cada falla que aparezca al ejecutar la matriz.
+**Defectos como issues reproducibles.** PENDIENTE: abrir en GitHub una issue por cada fila #9 y #10 de la tabla de problemas y por cada falla que aparezca al ejecutar la matriz.
 
 ## 2.7 Evidencias de la Parte 2
 
 - [x] Diagrama de arquitectura y estructura del repositorio.
 - [x] Recorrido del código con fragmentos reales.
 - [x] README con pasos de ejecución desde un clon limpio.
-- [ ] ☐ Pendiente: una imagen de ejecución por integrante.
-- [ ] ☐ Pendiente: ejecutar la matriz y registrar resultados reales.
+- [ ] Pendiente: una imagen de ejecución por integrante.
+- [ ] Pendiente: ejecutar la matriz y registrar resultados reales.
 
 ---
 
@@ -598,7 +598,7 @@ Si alguien no logra ejecutarlo, documentar aquí el error exacto, lo que intent�
 > **Comportamiento actual:** hay transcripción, pero no hay forma de obtener una respuesta sugerida a lo último que dijo la otra persona.
 > **Comportamiento deseado:** un botón y el atajo `⌘↩` consultan al RAG local con lo último que dijo «Ellos» y muestran una tarjeta con respuesta y fuentes.
 > **Criterio de aceptación:** ver 1.3.
-> **Número de la issue:** ☐ `#__` · **Liga:** ☐ Pendiente
+> **Número de la issue:** PENDIENTE `#__` · **Liga:** PENDIENTE
 
 ## 3.3 Rama
 
@@ -643,7 +643,7 @@ Closes #__
 - Happy path (TC-01), empty state (TC-02), service down (TC-03), Ollama down (TC-04).
 - Navigation / recreation (TC-05) and accessibility with larger text (TC-06).
 - App version: 1.0 (1) · Device: MacBook Air M1 8 GB · macOS 26.x
-- Screenshots / recordings: ☐ attach here
+- Screenshots / recordings: attach here
 
 ## Risk / rollback
 - Low risk: the change is isolated to ContentView.askNow() and RAGClient.
@@ -672,12 +672,12 @@ Otro integrante lee el diff, reproduce los pasos y deja al menos un comentario s
 
 | Evidencia | Liga / archivo |
 |---|---|
-| Issue | ☐ Pendiente |
-| Pull Request (4 secciones, en inglés) | ☐ Pendiente |
-| Historial de commits con todos los integrantes | ☐ Captura pendiente |
-| Resultado de la CI | ☐ Captura pendiente |
-| Conversación de revisión (comentario y respuesta) | ☐ Captura pendiente |
-| Etiqueta `parcial-1` | ☐ Pendiente |
+| Issue | PENDIENTE |
+| Pull Request (4 secciones, en inglés) | PENDIENTE |
+| Historial de commits con todos los integrantes | Captura pendiente |
+| Resultado de la CI | Captura pendiente |
+| Conversación de revisión (comentario y respuesta) | Captura pendiente |
+| Etiqueta `parcial-1` | PENDIENTE |
 
 ---
 
@@ -690,7 +690,7 @@ NextHelp transcribe lo que dicen **otras personas** y puede ocultar su ventana a
 | Herramienta | Parte del trabajo |
 |---|---|
 | **Claude (Anthropic)** | Análisis del código existente, redacción de este README, diagramas Mermaid y boceto en texto. |
-| ☐ Pendiente: completar | Si el equipo usó otra herramienta (p. ej. asistentes de código) para el desarrollo, indicarla aquí. |
+| PENDIENTE: completar | Si el equipo usó otra herramienta (p. ej. asistentes de código) para el desarrollo, indicarla aquí. |
 
 La aplicación **no** usa IA en la nube: los modelos (Qwen3, nomic-embed-text, SpeechAnalyzer) se ejecutan en el equipo del usuario.
 
