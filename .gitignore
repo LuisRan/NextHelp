@@ -1,0 +1,20 @@
+# --- Servicio RAG (Python) ---
+rag_service/venv/
+rag_service/__pycache__/
+rag_service/data/
+rag_service/main.py.bak*
+__pycache__/
+*.pyc
+
+# --- Datos privados generados por la app ---
+Transcripciones/
+*-debug.log
+Guiones/*
+!Guiones/ejemplo_demo_fso.md
+
+# --- Xcode / macOS ---
+xcuserdata/
+*.xcuserstate
+DerivedData/
+build/
+.DS_Store
