@@ -34,7 +34,18 @@ NextHelp combina un asistente móvil para reuniones con un minijuego arcade de a
 
 **Ejecutar Android desde un clon:** clona el repositorio, abre la carpeta raíz `NextHelp` en Android Studio, espera la sincronización de Gradle, selecciona un emulador y pulsa **Run**. El repositorio incluye Gradle Wrapper y la demo no requiere claves ni servicios remotos. También se puede compilar desde terminal con `./gradlew assembleDebug`; el APK queda en `app/build/outputs/apk/debug/app-debug.apk`. En Asistente, el botón **API** permite configurar opcionalmente el host y un token temporal en memoria. iOS tendrá su proyecto Xcode en una etapa posterior.
 
-> **Estado de este documento.** Todo lo descrito en las Partes 1 y 2 sale del código real del repositorio (se citan archivos, líneas y fragmentos). Lo que requiere evidencia que solo el equipo puede generar —capturas, ligas de issue/PR/CI, resultados reales de pruebas, nombres de integrantes— está marcado con **PENDIENTE** y **no** se rellenó con datos inventados.
+### Evidencia QA de Android y Pull Requests
+
+Los reportes incluyen issue, PR, commits probados e integrados, pasos, resultados esperados y observados, comandos y capturas del emulador API 35: [índice de evidencia QA](docs/qa/README.md).
+
+| Issue | Pull Request integrado | Cambio | Evidencia |
+|---|---|---|---|
+| [#1](https://github.com/LuisRan/NextHelp/issues/1) | [#2](https://github.com/LuisRan/NextHelp/pull/2) | MVP Android y README | [Reporte y capturas](docs/qa/pr-2.md) |
+| [#3](https://github.com/LuisRan/NextHelp/issues/3) | [#4](https://github.com/LuisRan/NextHelp/pull/4) | Granada de daño de área y pruebas | [Reporte, capturas y JUnit](docs/qa/pr-4.md) |
+| [#5](https://github.com/LuisRan/NextHelp/issues/5) | [#6](https://github.com/LuisRan/NextHelp/pull/6) | Apariencia de proyectil ligada al arma que lo creó | [Reporte y captura](docs/qa/pr-6.md) |
+
+
+> **Estado de este documento.** La evidencia reproducible del desarrollo Android y sus PR #2, #4 y #6 está en [`docs/qa/`](docs/qa/README.md), con capturas tomadas de los commits integrados. La validación con usuarios externos, CI automatizada, iOS y datos de otras personas integrantes sigue pendiente; no se inventan esos resultados.
 
 ## Contenido
 
@@ -51,9 +62,7 @@ NextHelp combina un asistente móvil para reuniones con un minijuego arcade de a
 
 | Integrante | Usuario de GitHub | Aportación principal |
 |---|---|---|
-| Luis Rangel | [@LuisRan](https://github.com/LuisRan) | Captura de audio, transcripción, servicio RAG |
-| PENDIENTE | PENDIENTE | PENDIENTE |
-| PENDIENTE | PENDIENTE | PENDIENTE |
+| Luis Rangel | [@LuisRan](https://github.com/LuisRan) | Producto NextHelp y port Android; documentación y QA de los PR móviles |
 
 ---
 
@@ -555,7 +564,7 @@ Cada integrante clona el repositorio, lo ejecuta y sube una captura donde se vea
 
 | Integrante | Archivo de evidencia | Estado |
 |---|---|---|
-| Rangel, Luis | `docs/evidencia/entrega-1/rangel-luis-entrega1.png` | PENDIENTE |
+| Rangel, Luis | [`docs/evidencia/entrega-1/rangel-luis-entrega1.png`](docs/evidencia/entrega-1/rangel-luis-entrega1.png) | Captura del MVP Android en emulador API 35 |
 | PENDIENTE | `docs/evidencia/entrega-1/apellido-nombre-entrega1.png` | PENDIENTE |
 | PENDIENTE | `docs/evidencia/entrega-1/apellido-nombre-entrega1.png` | PENDIENTE |
 
@@ -683,12 +692,12 @@ Otro integrante lee el diff, reproduce los pasos y deja al menos un comentario s
 
 | Evidencia | Liga / archivo |
 |---|---|
-| Issue | PENDIENTE |
-| Pull Request (4 secciones, en inglés) | PENDIENTE |
-| Historial de commits con todos los integrantes | Captura pendiente |
-| Resultado de la CI | Captura pendiente |
-| Conversación de revisión (comentario y respuesta) | Captura pendiente |
-| Etiqueta `parcial-1` | PENDIENTE |
+| Issues e historias | [#1](https://github.com/LuisRan/NextHelp/issues/1), [#3](https://github.com/LuisRan/NextHelp/issues/3), [#5](https://github.com/LuisRan/NextHelp/issues/5) |
+| Pull Requests integrados | [#2](https://github.com/LuisRan/NextHelp/pull/2), [#4](https://github.com/LuisRan/NextHelp/pull/4), [#6](https://github.com/LuisRan/NextHelp/pull/6) |
+| QA, commits y capturas | [`docs/qa/`](docs/qa/README.md) |
+| Revisiones registradas | Comentarios de revisión en cada PR; auto revisiones asistidas por Codex porque el autor trabajó sin equipo |
+| CI automatizada | No configurada; cada reporte distingue los comandos ejecutados localmente |
+| Etiqueta `parcial-1` | Se publica después de integrar la rama actual de evidencia QA |
 
 ---
 
@@ -701,12 +710,20 @@ NextHelp transcribe lo que dicen **otras personas** y puede ocultar su ventana a
 | Herramienta | Parte del trabajo |
 |---|---|
 | **Claude (Anthropic)** | Análisis del código existente, redacción de este README, diagramas Mermaid y boceto en texto. |
-| PENDIENTE: completar | Si el equipo usó otra herramienta (p. ej. asistentes de código) para el desarrollo, indicarla aquí. |
+| **Codex (OpenAI)** | Desarrollo del port Android, pruebas, reportes QA y auto revisiones técnicas asistidas. |
 
-La aplicación **no** usa IA en la nube: los modelos (Qwen3, nomic-embed-text, SpeechAnalyzer) se ejecutan en el equipo del usuario.
+La app original de macOS puede ejecutar Qwen3 y nomic-embed-text localmente. El cliente Android incluye una demo local y puede conectarse opcionalmente a un LLM remoto vía API; no incluye claves de proveedor. El dictado móvil depende del reconocedor del dispositivo.
 
 ## Lista de verificación de la entrega
 
+- [x] Repositorio público; el trabajo se realizó con un único autor porque no se asignó equipo
+- [x] `README.md` con pasos desde un clon limpio
+- [ ] `docs/idea.md` y `docs/licencias.md` aún pendientes; la matriz móvil está en [`docs/pruebas.md`](docs/pruebas.md)
+- [x] Capturas QA de la aplicación guardadas en `docs/qa/` y evidencia individual en `docs/evidencia/entrega-1/`
+- [ ] `.github/workflows/` con CI ejecutándose; por ahora se conservan logs de QA local
+- [x] Tres issues y tres PR integrados; las auto revisiones técnicas asistidas están registradas en los PR (sin revisión de un tercero)
+- [ ] CI en verde; no se configuró un workflow. La etiqueta `parcial-1` se publica al integrar la rama de evidencia QA
+- [x] Las capturas revisadas no muestran contraseñas, claves, tokens ni datos personales
 - [ ] Repositorio público con historial de **todos** los integrantes
 - [ ] `README.md` con pasos desde un clon limpio
 - [ ] `docs/idea.md`, `docs/pruebas.md`, `docs/licencias.md`

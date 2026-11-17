@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.zeedatik.nexthelp.ArcadeGameTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-11-17T13:03:00.738Z" hostname="MacBookAir" time="0.071">
+  <properties/>
+  <testcase name="directShotDoesNotDamageAnEnemyOutsideItsHitRange" classname="com.zeedatik.nexthelp.ArcadeGameTest" time="0.06"/>
+  <testcase name="grenadeDamagesNearbyEnemiesAndBoss" classname="com.zeedatik.nexthelp.ArcadeGameTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
