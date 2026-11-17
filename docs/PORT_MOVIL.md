@@ -14,7 +14,7 @@ NextHelp también incluye un minijuego original de acción lateral para darle un
 
 - Proyecto Android Compose en el módulo `app/`, abierto desde la raíz con Gradle Wrapper. La pantalla principal tiene accesos visibles al Asistente y al Minijuego.
 - Asistente demo local y envío opcional a `POST /v1/assistant/answer`; permite escribir o dictar una pregunta y muestra respuesta, fuente y errores. El host/token no son obligatorios; el token ingresado permanece solo en memoria.
-- Minijuego funcional con protagonista original dibujado en pixel art, tres escenarios/ciclo, tres armas, movimiento lateral por toques, salto, disparo, oleadas, jefe, acertijo de opción múltiple, dificultad creciente y mejor puntaje/ciclo guardados localmente.
+- Minijuego funcional con protagonista original dibujado en pixel art, tres escenarios/ciclo, cuatro armas (pistola, escopeta, rayo y granada de área), movimiento lateral por toques, salto, disparo, oleadas, jefe, acertijo de opción múltiple, dificultad creciente y mejor puntaje/ciclo guardados localmente.
 - iOS, transcripción continua, perfiles/documentos, historial completo, overlay, memoria y el backend real siguen pendientes. La captura por voz disponible en el MVP es dictado bajo demanda mediante el reconocedor del sistema, no escucha continua de la reunión.
 
 ## Alcance priorizado
