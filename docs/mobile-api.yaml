@@ -1,0 +1,252 @@
+openapi: 3.1.0
+info:
+  title: NextHelp Mobile API
+  version: 1.0.0
+  description: >-
+    Contrato inicial para clientes Android e iOS. La API debe autenticar usuarios,
+    proteger credenciales de proveedores LLM y no escribir contenido de reuniones
+    en logs. No desplegar sin TLS, límites de uso y política de retención definida.
+servers:
+  - url: https://api.example.invalid/v1
+    description: Placeholder; sustituir por el host real antes de integrar.
+security:
+  - bearerAuth: []
+tags:
+  - name: Sessions
+  - name: Assistant
+  - name: Profiles
+paths:
+  /sessions:
+    post:
+      tags: [Sessions]
+      operationId: createSession
+      summary: Crea una sesión de reunión
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [startedAt]
+              properties:
+                startedAt: { type: string, format: date-time }
+                profileId: { type: string, nullable: true }
+      responses:
+        '201':
+          description: Sesión creada
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Session' }
+        default: { $ref: '#/components/responses/ApiError' }
+  /sessions/{sessionId}/transcript:
+    parameters:
+      - $ref: '#/components/parameters/SessionId'
+    post:
+      tags: [Sessions]
+      operationId: appendTranscript
+      summary: Guarda segmentos de transcripción con consentimiento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [segments]
+              properties:
+                segments:
+                  type: array
+                  items: { $ref: '#/components/schemas/TranscriptSegment' }
+      responses:
+        '204': { description: Segmentos aceptados }
+        default: { $ref: '#/components/responses/ApiError' }
+    delete:
+      tags: [Sessions]
+      operationId: deleteTranscript
+      summary: Elimina la transcripción remota de una sesión
+      responses:
+        '204': { description: Transcripción eliminada }
+        default: { $ref: '#/components/responses/ApiError' }
+  /assistant/answer:
+    post:
+      tags: [Assistant]
+      operationId: answerLastQuestion
+      summary: Responde a la última intervención con contexto de sesión y perfil
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sessionId, question]
+              properties:
+                sessionId: { type: string, format: uuid }
+                profileId: { type: string, nullable: true }
+                question: { type: string, minLength: 1, maxLength: 12000 }
+                context:
+                  type: array
+                  items: { $ref: '#/components/schemas/TranscriptSegment' }
+                mode: { type: string, enum: [fast, deep], default: fast }
+      responses:
+        '200':
+          description: Respuesta y fuentes recuperadas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AssistantAnswer' }
+        default: { $ref: '#/components/responses/ApiError' }
+  /assistant/chat:
+    post:
+      tags: [Assistant]
+      operationId: chat
+      summary: Pregunta libre sobre la reunión y documentos del perfil
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sessionId, question]
+              properties:
+                sessionId: { type: string, format: uuid }
+                profileId: { type: string, nullable: true }
+                question: { type: string, minLength: 1, maxLength: 12000 }
+                mode: { type: string, enum: [fast, deep], default: fast }
+      responses:
+        '200':
+          description: Respuesta y fuentes recuperadas
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AssistantAnswer' }
+        default: { $ref: '#/components/responses/ApiError' }
+  /profiles:
+    get:
+      tags: [Profiles]
+      operationId: listProfiles
+      summary: Lista perfiles visibles para el usuario autenticado
+      responses:
+        '200':
+          description: Perfiles
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: '#/components/schemas/Profile' }
+        default: { $ref: '#/components/responses/ApiError' }
+    post:
+      tags: [Profiles]
+      operationId: createProfile
+      summary: Crea un perfil documental
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string, minLength: 1, maxLength: 80 }
+      responses:
+        '201':
+          description: Perfil creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Profile' }
+        default: { $ref: '#/components/responses/ApiError' }
+  /profiles/{profileId}/documents:
+    parameters:
+      - name: profileId
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      tags: [Profiles]
+      operationId: uploadProfileDocument
+      summary: Carga un documento para indexación RAG
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file: { type: string, format: binary }
+      responses:
+        '202':
+          description: Documento aceptado para indexación
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [documentId, status]
+                properties:
+                  documentId: { type: string }
+                  status: { type: string, enum: [queued, indexing] }
+        default: { $ref: '#/components/responses/ApiError' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  responses:
+    ApiError:
+      description: Error con código estable y mensaje seguro para mostrar
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+  schemas:
+    Session:
+      type: object
+      required: [id, startedAt]
+      properties:
+        id: { type: string, format: uuid }
+        startedAt: { type: string, format: date-time }
+        profileId: { type: string, nullable: true }
+    TranscriptSegment:
+      type: object
+      required: [id, speaker, text, startedAt]
+      properties:
+        id: { type: string, format: uuid }
+        speaker: { type: string, enum: [self, other, unknown] }
+        text: { type: string, minLength: 1, maxLength: 5000 }
+        startedAt: { type: string, format: date-time }
+        isFinal: { type: boolean, default: true }
+    AssistantAnswer:
+      type: object
+      required: [answer, sources, requestId]
+      properties:
+        answer: { type: string }
+        sources:
+          type: array
+          items:
+            type: object
+            required: [title]
+            properties:
+              title: { type: string }
+              excerpt: { type: string, nullable: true }
+              documentId: { type: string, nullable: true }
+        requestId: { type: string }
+    Profile:
+      type: object
+      required: [id, name, documentCount]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        documentCount: { type: integer, minimum: 0 }
+    ApiError:
+      type: object
+      required: [code, message, requestId]
+      properties:
+        code: { type: string }
+        message: { type: string }
+        requestId: { type: string }
