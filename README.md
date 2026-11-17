@@ -1,18 +1,45 @@
-# NextHelp — copiloto local para reuniones, demos y entrevistas
+# NextHelp — asistente móvil y arcade de acción lateral
 
 > **Entrega 1 del proyecto** · Desarrollo de aplicaciones móviles nativas · ESCOM-IPN · Ingeniería en Sistemas Computacionales (plan 2020)
 > **Ruta elegida:** idea propia, desarrollada desde cero.
 > **Repositorio:** https://github.com/LuisRan/NextHelp
 
-NextHelp escucha una reunión en vivo (tu micrófono y el audio del sistema), la transcribe **sin salir de tu equipo**, y con un atajo de teclado te sugiere una respuesta breve a lo último que te preguntaron, apoyándose en tus propios documentos. Además incluye un teleprompter que avanza solo según lo que vas diciendo y una ventana que no aparece cuando compartes pantalla.
+NextHelp combina un asistente móvil para reuniones con un minijuego arcade de acción lateral. El asistente captura el micrófono con permiso explícito, transcribe la conversación y consulta un LLM por API con los documentos del perfil activo. El juego ofrece una pausa ligera para móvil: avanzar, saltar, cambiar de arma y superar encuentros de combate o acertijos.
 
 > **Plataforma.** La aplicación es una app **nativa de macOS 26+** hecha con SwiftUI (usa `ScreenCaptureKit`, `AppKit` y `SpeechAnalyzer`, que no existen en iOS). El proyecto de Xcode se creó con la plantilla multiplataforma, por eso `project.pbxproj` conserva claves de iOS, pero **ningún archivo fuente compila para iOS**. Todo lo que se documenta aquí corresponde a la versión de macOS.
+
+> **Portabilidad móvil.** El producto NextHelp actual para macOS es la referencia funcional; la entrega móvil del curso se adapta a APIs de LLM remotas y a las capacidades reales de cada sistema. El alcance, el mapa de funciones y los criterios para Android (publicación) e iOS están en [`docs/PORT_MOVIL.md`](docs/PORT_MOVIL.md). Esta planificación no afirma que ya exista un cliente móvil implementado.
+
+> **Estado del proyecto móvil.** Android es el destino de publicación y iOS es el destino de portabilidad. Ya se agregó un MVP Android en el módulo `app/`: pantalla de inicio con Asistente y Minijuego, demo local, conexión opcional al contrato API y arcade lateral jugable. No requiere claves para iniciar. iOS y las funciones avanzadas del asistente (captura continua, perfiles documentales, historial y overlay) siguen pendientes.
+
+## Alcance móvil
+
+### Asistente para reuniones
+
+- Transcripción del micrófono iniciada y detenida por la persona usuaria, preguntas al LLM remoto, respuestas con fuentes y estados claros de carga/error.
+- Perfiles documentales y ajustes de API. Las claves del proveedor LLM se guardan en el backend, nunca dentro del APK/IPA ni en Git.
+- Sesiones, historial, teleprompter, privacidad y exportación según las capacidades de cada sistema.
+- En Android, modo compacto flotante opcional con permiso especial solicitado en contexto. En iOS, modo compacto dentro de la app. No se promete captura universal del audio de otras apps ni invisibilidad frente a capturas.
+
+### Minijuego: cacería arcade
+
+- Juego original de desplazamiento lateral y arte pixelado, inspirado en el ritmo de los arcades clásicos. No reutiliza personajes, sprites, música, mapas ni nombres de franquicias existentes.
+- Tres escenarios cortos que vuelven a empezar en ciclo. Cada ciclo aumenta la dificultad y termina con un jefe; al derrotarlo comienza el siguiente ciclo con dificultad mayor.
+- Controles táctiles sencillos: moverse, saltar, disparar y cambiar entre varias armas. Enemigos por oleadas, colisiones legibles y reinicio rápido al perder.
+- Encuentros narrativos con personajes que plantean acertijos de opción múltiple en vez de combatir. La respuesta correcta permite avanzar; fallar termina esa partida.
+- Guardado local del mejor puntaje y el ciclo más alto alcanzado. El juego funciona sin iniciar sesión ni conexión a la API del asistente.
+- Violencia estilizada y no gráfica; el tema de cacería de asesinos es ficción y no enseña técnicas reales para dañar o evadir a personas.
+
+### Abrir y ejecutar desde un clon
+
+**Ejecutar Android desde un clon:** clona el repositorio, abre la carpeta raíz `NextHelp` en Android Studio, espera la sincronización de Gradle, selecciona un emulador y pulsa **Run**. El repositorio incluye Gradle Wrapper y la demo no requiere claves ni servicios remotos. También se puede compilar desde terminal con `./gradlew assembleDebug`; el APK queda en `app/build/outputs/apk/debug/app-debug.apk`. En Asistente, el botón **API** permite configurar opcionalmente el host y un token temporal en memoria. iOS tendrá su proyecto Xcode en una etapa posterior.
 
 > **Estado de este documento.** Todo lo descrito en las Partes 1 y 2 sale del código real del repositorio (se citan archivos, líneas y fragmentos). Lo que requiere evidencia que solo el equipo puede generar —capturas, ligas de issue/PR/CI, resultados reales de pruebas, nombres de integrantes— está marcado con **PENDIENTE** y **no** se rellenó con datos inventados.
 
 ## Contenido
 
 - [Equipo](#equipo)
+- [Alcance móvil](#alcance-móvil)
 - [Parte 1 — Idea original](#parte-1--idea-original-de-la-aplicación)
 - [Parte 2 — Arquitectura, código y repositorio](#parte-2--el-proyecto-arquitectura-código-y-repositorio)
 - [Parte 3 — Pull Request del curso](#parte-3--pull-request-completo-con-el-procedimiento-del-curso)
@@ -174,7 +201,12 @@ NextHelp/
 │   └── ejemplo_demo_fso.md            ← guion de ejemplo para el teleprompter
 ├── setup.sh                           ← instala Ollama, modelo de embeddings y venv
 ├── ingest_docs.sh                     ← indexa docs/<perfil>/* en el RAG
-└── .github/workflows/                 ← PENDIENTE: CI (ver más abajo)
+├── app/                               ← cliente Android Compose (MVP móvil)
+├── gradle/                            ← catálogo de dependencias y wrapper
+├── settings.gradle.kts                ← Android Studio importa el repo desde aquí
+├── build.gradle.kts
+├── gradlew                            ← wrapper para construir sin Gradle global
+└── docs/mobile-api.yaml               ← contrato inicial del API remoto
 ```
 
 | Elemento | Dónde / qué es |
@@ -202,28 +234,7 @@ NextHelp/
 
 ### Integración continua (`.github/workflows`)
 
-El repositorio **todavía no tiene flujos de CI**. Propuesta (PENDIENTE: añadir y dejar ejecutándose antes de entregar):
-
-| Flujo | Comprueba | Nota |
-|---|---|---|
-| `python-ci.yml` (ubuntu) | Instala `rag_service/requirements.txt`, compila `main.py` (`python -m py_compile`) y corre pruebas unitarias de funciones puras: `chunk_text` y `safe_profile_name`. | Se puede verificar 100 % de forma automática. |
-| `swift-build.yml` (macOS) | `xcodebuild -project MeetingAssistant.xcodeproj -scheme MeetingAssistant build CODE_SIGNING_ALLOWED=NO`. | Requiere un runner con el SDK de **macOS 26**; si no está disponible, queda como QA manual y se documenta. |
-
-```yaml
-# .github/workflows/python-ci.yml  (propuesta)
-name: python-ci
-on: [push, pull_request]
-jobs:
-  rag-service:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.12" }
-      - run: pip install -r rag_service/requirements.txt pytest
-      - run: python -m py_compile rag_service/main.py
-      - run: pytest -q
-```
+El repositorio todavía no tiene CI automatizada. Para los cambios Android, la evidencia manual de compilación es `./gradlew clean assembleDebug` y el lanzamiento del APK en un emulador API 35. Añadir un workflow de GitHub Actions queda pendiente.
 
 ### Licencia y procedencia de recursos (`docs/licencias.md`)
 

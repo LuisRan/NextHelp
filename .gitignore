@@ -1,20 +1,30 @@
-# --- Servicio RAG (Python) ---
-rag_service/venv/
-rag_service/__pycache__/
-rag_service/data/
-rag_service/main.py.bak*
-__pycache__/
-*.pyc
+# Android / Gradle
+.gradle/
+**/build/
+local.properties
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/
 
-# --- Datos privados generados por la app ---
-Transcripciones/
-*-debug.log
-Guiones/*
-!Guiones/ejemplo_demo_fso.md
+# Firma y secretos locales
+*.jks
+*.keystore
+keystore.properties
+secrets.properties
 
-# --- Xcode / macOS ---
+# macOS / Xcode
+.DS_Store
 xcuserdata/
 *.xcuserstate
 DerivedData/
-build/
-.DS_Store
+
+# Datos privados generados
+Transcripciones/
+*-debug.log
+rag_service/venv/
+rag_service/__pycache__/
+rag_service/data/
+__pycache__/
+*.pyc
