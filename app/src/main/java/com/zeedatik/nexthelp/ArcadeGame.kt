@@ -47,7 +47,13 @@ private val Gold = Color(0xFFFFC857)
 private val PixelCream = Color(0xFFFFE5B0)
 
 internal data class PixelEnemy(val x: Float, val hp: Int = 1, val boss: Boolean = false)
-internal data class PixelBullet(val x: Float, val y: Float, val speed: Float = .055f, val blastRadius: Float = 0f)
+internal data class PixelBullet(
+    val x: Float,
+    val y: Float,
+    val speed: Float = .055f,
+    val blastRadius: Float = 0f,
+    val weapon: Int = 0
+)
 internal data class ArcadeState(
     val running: Boolean = false,
     val finished: Boolean = false,
@@ -154,8 +160,8 @@ internal fun ArcadeScreen(state: ArcadeState, onState: (ArcadeState) -> Unit, on
                     }
                 }
                 state.bullets.forEach { bullet ->
-                    if (state.weapon == 3) drawRect(Color(0xFFFF784F).copy(alpha = .28f), Offset(w * (bullet.x - .025f), h * (bullet.y - .03f)), Size(w * .07f, h * .078f))
-                    drawRect(when (state.weapon) { 2 -> Color(0xFF77F1F4); 3 -> Color(0xFFFF784F); else -> Gold }, Offset(w * bullet.x, h * bullet.y), Size(w * if (state.weapon == 2) .065f else .035f, h * .018f))
+                    if (bullet.weapon == 3) drawRect(Color(0xFFFF784F).copy(alpha = .28f), Offset(w * (bullet.x - .025f), h * (bullet.y - .03f)), Size(w * .07f, h * .078f))
+                    drawRect(when (bullet.weapon) { 2 -> Color(0xFF77F1F4); 3 -> Color(0xFFFF784F); else -> Gold }, Offset(w * bullet.x, h * bullet.y), Size(w * if (bullet.weapon == 2) .065f else .035f, h * .018f))
                 }
                 drawRect(Color.White.copy(alpha = .12f), Offset(0f, h * .79f - 2), Size(w, 2f))
             }
@@ -186,10 +192,10 @@ internal fun ArcadeScreen(state: ArcadeState, onState: (ArcadeState) -> Unit, on
             GameButton("${weaponShort(state.weapon)}", Modifier.weight(1.15f), enabled = state.running) { onState(state.copy(weapon = (state.weapon + 1) % 4, message = "Arma: ${weaponName((state.weapon + 1) % 4)}")) }
             GameButton("DISPARO", Modifier.weight(1.35f), enabled = state.running) {
                 val bullets = when (state.weapon) {
-                    1 -> listOf(PixelBullet(state.playerX + .12f, .64f, .06f), PixelBullet(state.playerX + .12f, .68f, .06f), PixelBullet(state.playerX + .12f, .60f, .06f))
-                    2 -> listOf(PixelBullet(state.playerX + .12f, .64f, .13f))
-                    3 -> listOf(PixelBullet(state.playerX + .12f, .64f, .045f, blastRadius = .2f))
-                    else -> listOf(PixelBullet(state.playerX + .12f, .64f, .075f))
+                    1 -> listOf(PixelBullet(state.playerX + .12f, .64f, .06f, weapon = 1), PixelBullet(state.playerX + .12f, .68f, .06f, weapon = 1), PixelBullet(state.playerX + .12f, .60f, .06f, weapon = 1))
+                    2 -> listOf(PixelBullet(state.playerX + .12f, .64f, .13f, weapon = 2))
+                    3 -> listOf(PixelBullet(state.playerX + .12f, .64f, .045f, blastRadius = .2f, weapon = 3))
+                    else -> listOf(PixelBullet(state.playerX + .12f, .64f, .075f, weapon = 0))
                 }
                 onState(state.copy(bullets = state.bullets + bullets))
             }
