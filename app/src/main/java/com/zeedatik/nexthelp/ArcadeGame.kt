@@ -237,36 +237,17 @@ private fun stepArcade(old: ArcadeState): ArcadeState {
     }
 
     val hadBoss = old.enemies.any { it.boss }
-    var enemies = old.enemies.map { enemy ->
+    val enemies = old.enemies.map { enemy ->
         if (enemy.boss) enemy.copy(x = (enemy.x - .0022f).coerceAtLeast(.69f))
         else enemy.copy(x = enemy.x - (.012f + old.cycle * .0014f))
-    }.toMutableList()
-    var bullets = old.bullets.map { it.copy(x = it.x + it.speed) }.filter { it.x < 1.1f }.toMutableList()
-    var score = old.score
-    val remainingBullets = mutableListOf<PixelBullet>()
-    bullets.forEach { bullet ->
-        val target = enemies.indexOfFirst { abs(it.x - bullet.x) < if (it.boss) .12f else .07f }
-        if (target < 0) {
-            remainingBullets.add(bullet)
-        } else if (bullet.blastRadius > 0f) {
-            val impactX = enemies[target].x
-            val affected = enemies.filter { abs(it.x - impactX) <= bullet.blastRadius }
-            affected.forEach { enemy ->
-                val index = enemies.indexOf(enemy)
-                if (index >= 0 && enemy.boss && enemy.hp > 2) enemies[index] = enemy.copy(hp = enemy.hp - 2)
-                else if (index >= 0) { enemies.removeAt(index); score += if (enemy.boss) 100 else 10 }
-            }
-        } else {
-            val enemy = enemies[target]
-            if (enemy.boss && enemy.hp > 1) enemies[target] = enemy.copy(hp = enemy.hp - 1)
-            else { enemies.removeAt(target); score += if (enemy.boss) 100 else 10 }
-        }
     }
-    bullets = remainingBullets
-
+    val bullets = old.bullets.map { it.copy(x = it.x + it.speed) }.filter { it.x < 1.1f }
+    val shots = resolveShots(enemies, bullets, old.score)
+    val score = shots.score
+    val remainingBullets = shots.bullets
     var lives = old.lives
     val remainingEnemies = mutableListOf<PixelEnemy>()
-    enemies.forEach { enemy ->
+    shots.enemies.forEach { enemy ->
         if (!enemy.boss && enemy.x < old.playerX + .065f && enemy.x > old.playerX - .02f && old.jump < .07f) lives -= 1
         else if (enemy.x > -.1f || enemy.boss) remainingEnemies.add(enemy)
     }
@@ -291,7 +272,34 @@ private fun stepArcade(old: ArcadeState): ArcadeState {
     }
 
     val jump = (old.jump - .018f).coerceAtLeast(0f)
-    return old.copy(enemies = remainingEnemies, bullets = bullets, elapsed = elapsed, spawnClock = spawnClock, level = level, score = score, lives = lives, jump = jump, bossSpawned = bossSpawned, message = message)
+    return old.copy(enemies = remainingEnemies, bullets = remainingBullets, elapsed = elapsed, spawnClock = spawnClock, level = level, score = score, lives = lives, jump = jump, bossSpawned = bossSpawned, message = message)
+}
+
+internal data class ShotResolution(val enemies: List<PixelEnemy>, val bullets: List<PixelBullet>, val score: Int)
+
+internal fun resolveShots(inputEnemies: List<PixelEnemy>, inputBullets: List<PixelBullet>, initialScore: Int): ShotResolution {
+    val enemies = inputEnemies.toMutableList()
+    val remainingBullets = mutableListOf<PixelBullet>()
+    var score = initialScore
+    inputBullets.forEach { bullet ->
+        val target = enemies.indexOfFirst { abs(it.x - bullet.x) < if (it.boss) .12f else .07f }
+        if (target < 0) {
+            remainingBullets.add(bullet)
+        } else if (bullet.blastRadius > 0f) {
+            val impactX = enemies[target].x
+            val affected = enemies.filter { abs(it.x - impactX) <= bullet.blastRadius }
+            affected.forEach { enemy ->
+                val index = enemies.indexOf(enemy)
+                if (index >= 0 && enemy.boss && enemy.hp > 2) enemies[index] = enemy.copy(hp = enemy.hp - 2)
+                else if (index >= 0) { enemies.removeAt(index); score += if (enemy.boss) 100 else 10 }
+            }
+        } else {
+            val enemy = enemies[target]
+            if (enemy.boss && enemy.hp > 1) enemies[target] = enemy.copy(hp = enemy.hp - 1)
+            else { enemies.removeAt(target); score += if (enemy.boss) 100 else 10 }
+        }
+    }
+    return ShotResolution(enemies, remainingBullets, score)
 }
 
 private fun stageName(level: Int) = when (level) { 1 -> "Centro"; 2 -> "Fábrica"; else -> "Estación / Jefe" }
