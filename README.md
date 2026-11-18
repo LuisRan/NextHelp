@@ -558,17 +558,14 @@ Nota: la app crea y usa `~/Documents/MeetingAssistant/` para `Transcripciones/`,
 | 9 | *(abierto)* `SCStream se detuvo … code=-3815 «No se encontraron pantallas ni ventanas por capturar»` (log del 30-sep, 18:34:24). | La captura se queda sin display (p. ej. pantalla apagada o desconectada). | Sin resolver: abrir issue y reiniciar la captura al reaparecer un display. |
 | 10 | *(abierto)* El audio en inglés se transcribe mal («Ay, show you what you feels like»). | El reconocedor está fijado a `es-MX`. | Sin resolver: permitir elegir idioma por fuente (función aplazada). |
 
-## 2.5 Ejecución verificada por todos los integrantes
+## 2.5 Ejecución verificada por el autor
 
-Cada integrante clona el repositorio, lo ejecuta y sube una captura donde se vea **la app en ejecución** y **algo que identifique su equipo** (terminal con `git config user.name`, nombre de usuario del sistema o el IDE abierto).
+El autor trabaja individualmente porque no se asignó equipo. La captura muestra NextHelp funcionando en el emulador API 35 e identifica el producto Zeedatik/NextHelp; los estados funcionales y sus commits se documentan en [`docs/qa/`](docs/qa/README.md).
 
 | Integrante | Archivo de evidencia | Estado |
 |---|---|---|
-| Rangel, Luis | [`docs/evidencia/entrega-1/rangel-luis-entrega1.png`](docs/evidencia/entrega-1/rangel-luis-entrega1.png) | Captura del MVP Android en emulador API 35 |
-| PENDIENTE | `docs/evidencia/entrega-1/apellido-nombre-entrega1.png` | PENDIENTE |
-| PENDIENTE | `docs/evidencia/entrega-1/apellido-nombre-entrega1.png` | PENDIENTE |
+| Rangel, Luis | [`docs/evidencia/entrega-1/rangel-luis-entrega1.png`](docs/evidencia/entrega-1/rangel-luis-entrega1.png) | Aplicación en ejecución con identidad Zeedatik/NextHelp, emulador API 35 |
 
-Si alguien no logra ejecutarlo, documentar aquí el error exacto, lo que intentó y en qué estado quedó.
 
 ## 2.6 Matriz inicial de pruebas (`docs/pruebas.md`)
 
@@ -697,7 +694,7 @@ Otro integrante lee el diff, reproduce los pasos y deja al menos un comentario s
 | QA, commits y capturas | [`docs/qa/`](docs/qa/README.md) |
 | Revisiones registradas | Comentarios de revisión en cada PR; auto revisiones asistidas por Codex porque el autor trabajó sin equipo |
 | CI automatizada | No configurada; cada reporte distingue los comandos ejecutados localmente |
-| Etiqueta `parcial-1` | Se publica después de integrar la rama actual de evidencia QA |
+| Etiqueta `parcial-1` | Publicada en GitHub; apunta al merge de evidencia `72ac420` |
 
 ---
 
@@ -721,14 +718,7 @@ La app original de macOS puede ejecutar Qwen3 y nomic-embed-text localmente. El 
 - [ ] `docs/idea.md` y `docs/licencias.md` aún pendientes; la matriz móvil está en [`docs/pruebas.md`](docs/pruebas.md)
 - [x] Capturas QA de la aplicación guardadas en `docs/qa/` y evidencia individual en `docs/evidencia/entrega-1/`
 - [ ] `.github/workflows/` con CI ejecutándose; por ahora se conservan logs de QA local
-- [x] Tres issues y tres PR integrados; las auto revisiones técnicas asistidas están registradas en los PR (sin revisión de un tercero)
-- [ ] CI en verde; no se configuró un workflow. La etiqueta `parcial-1` se publica al integrar la rama de evidencia QA
+- [x] Tres PR de producto integrados (#2, #4 y #6); las auto revisiones técnicas asistidas están registradas en sus PR, sin revisión de un tercero
+- [ ] CI en verde; el repositorio no tiene workflow configurado
+- [x] Etiqueta [`parcial-1`](https://github.com/LuisRan/NextHelp/releases/tag/parcial-1) publicada sobre el merge de evidencia QA `72ac420`
 - [x] Las capturas revisadas no muestran contraseñas, claves, tokens ni datos personales
-- [ ] Repositorio público con historial de **todos** los integrantes
-- [ ] `README.md` con pasos desde un clon limpio
-- [ ] `docs/idea.md`, `docs/pruebas.md`, `docs/licencias.md`
-- [ ] `docs/evidencia/entrega-1/` con una imagen por integrante
-- [ ] `.github/workflows/` con CI ejecutándose
-- [ ] Issue, Pull Request (en inglés) y revisión de un compañero
-- [ ] CI en verde y etiqueta `parcial-1`
-- [ ] Sin contraseñas, claves, tokens ni datos personales en capturas ni registros
