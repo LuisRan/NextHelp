@@ -558,17 +558,14 @@ Nota: la app crea y usa `~/Documents/MeetingAssistant/` para `Transcripciones/`,
 | 9 | *(abierto)* `SCStream se detuvo … code=-3815 «No se encontraron pantallas ni ventanas por capturar»` (log del 30-sep, 18:34:24). | La captura se queda sin display (p. ej. pantalla apagada o desconectada). | Sin resolver: abrir issue y reiniciar la captura al reaparecer un display. |
 | 10 | *(abierto)* El audio en inglés se transcribe mal («Ay, show you what you feels like»). | El reconocedor está fijado a `es-MX`. | Sin resolver: permitir elegir idioma por fuente (función aplazada). |
 
-## 2.5 Ejecución verificada por todos los integrantes
+## 2.5 Evidencia de ejecución del autor
 
-Cada integrante clona el repositorio, lo ejecuta y sube una captura donde se vea **la app en ejecución** y **algo que identifique su equipo** (terminal con `git config user.name`, nombre de usuario del sistema o el IDE abierto).
+El proyecto se trabaja de forma individual porque no se asignó equipo. La captura de la aplicación en emulador API 35 está guardada en `docs/evidencia/entrega-1/`; las capturas detalladas por commit están en `docs/qa/`.
 
 | Integrante | Archivo de evidencia | Estado |
 |---|---|---|
-| Rangel, Luis | [`docs/evidencia/entrega-1/rangel-luis-entrega1.png`](docs/evidencia/entrega-1/rangel-luis-entrega1.png) | Captura del MVP Android en emulador API 35 |
-| PENDIENTE | `docs/evidencia/entrega-1/apellido-nombre-entrega1.png` | PENDIENTE |
-| PENDIENTE | `docs/evidencia/entrega-1/apellido-nombre-entrega1.png` | PENDIENTE |
+| Rangel, Luis | [`docs/evidencia/entrega-1/rangel-luis-entrega1.png`](docs/evidencia/entrega-1/rangel-luis-entrega1.png) | Aplicación NextHelp visible en emulador API 35; evidencia individual del autor |
 
-Si alguien no logra ejecutarlo, documentar aquí el error exacto, lo que intentó y en qué estado quedó.
 
 ## 2.6 Matriz inicial de pruebas (`docs/pruebas.md`)
 
@@ -674,9 +671,9 @@ Closes #__
 
 Ejecutar TC-01 a TC-06 (ruta feliz, estados alternos, navegación y accesibilidad), adjuntar capturas reales con versión y dispositivo en *QA evidence*, actualizar `docs/pruebas.md` y **solo entonces** marcar *Ready for review*.
 
-## 3.7 Revisión de un compañero
+## 3.7 Revisión
 
-Otro integrante lee el diff, reproduce los pasos y deja al menos un comentario sobre una línea o comportamiento concreto; el autor responde y corrige **sin reescribir el historial**. La conversación queda en el PR (no por mensajería privada) y termina en aprobación, cambios solicitados o rechazo.
+La guía general pide que otra persona revise el diff y reproduzca los pasos. En esta entrega Luis trabaja solo, sin equipo asignado; por autorización del autor se registraron revisiones técnicas asistidas por Codex en los PR #2, #4 y #6. Son comentarios `COMMENTED` del autor, no aprobaciones independientes de terceros. La conversación y los límites de cada revisión están enlazados desde [`docs/qa/`](docs/qa/README.md).
 
 ## 3.8 Checks, integración y etiqueta
 
@@ -724,11 +721,3 @@ La app original de macOS puede ejecutar Qwen3 y nomic-embed-text localmente. El 
 - [x] Tres issues y tres PR integrados; las auto revisiones técnicas asistidas están registradas en los PR (sin revisión de un tercero)
 - [ ] CI en verde; no se configuró un workflow. La etiqueta `parcial-1` se publica al integrar la rama de evidencia QA
 - [x] Las capturas revisadas no muestran contraseñas, claves, tokens ni datos personales
-- [ ] Repositorio público con historial de **todos** los integrantes
-- [ ] `README.md` con pasos desde un clon limpio
-- [ ] `docs/idea.md`, `docs/pruebas.md`, `docs/licencias.md`
-- [ ] `docs/evidencia/entrega-1/` con una imagen por integrante
-- [ ] `.github/workflows/` con CI ejecutándose
-- [ ] Issue, Pull Request (en inglés) y revisión de un compañero
-- [ ] CI en verde y etiqueta `parcial-1`
-- [ ] Sin contraseñas, claves, tokens ni datos personales en capturas ni registros
