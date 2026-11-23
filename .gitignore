@@ -7,6 +7,9 @@ local.properties
 captures/
 .externalNativeBuild/
 .cxx/
+*.apk
+*.aab
+release-builds/
 
 # Firma y secretos locales
 *.jks
