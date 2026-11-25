@@ -6,9 +6,11 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -19,13 +21,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -35,6 +40,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -46,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,9 +75,10 @@ private val Muted = Color(0xFF9BA8BC)
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.statusBarColor = android.graphics.Color.rgb(16, 20, 31)
-        window.navigationBarColor = android.graphics.Color.rgb(16, 20, 31)
-        window.decorView.setBackgroundColor(android.graphics.Color.rgb(16, 20, 31))
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+        )
         setContent { NextHelpApp() }
     }
 }
@@ -92,26 +100,28 @@ private fun NextHelpApp() {
     var bestCycle by remember { mutableStateOf(prefs.getInt("best_cycle", 1)) }
     BackHandler(page != Page.Home) { page = Page.Home }
 
-    MaterialTheme {
-        Surface(Modifier.fillMaxSize().systemBarsPadding(), color = Ink) {
-            when (page) {
-                Page.Home -> HomeScreen(
-                    bestScore = bestScore,
-                    bestCycle = bestCycle,
-                    openAssistant = { page = Page.Assistant },
-                    openGame = { game = ArcadeState(); page = Page.Game }
-                )
-                Page.Assistant -> AssistantScreen(onBack = { page = Page.Home })
-                Page.Game -> ArcadeScreen(
-                    state = game,
-                    onState = { game = it },
-                    onBack = { page = Page.Home },
-                    onGameOver = { score, cycle ->
-                        if (score > bestScore) bestScore = score
-                        if (cycle > bestCycle) bestCycle = cycle
-                        prefs.edit().putInt("best_score", bestScore).putInt("best_cycle", bestCycle).apply()
-                    }
-                )
+    MaterialTheme(colorScheme = darkColorScheme(primary = Mint, surface = Ink)) {
+        Surface(Modifier.fillMaxSize(), color = Ink) {
+            Box(Modifier.fillMaxSize().systemBarsPadding()) {
+                when (page) {
+                    Page.Home -> HomeScreen(
+                        bestScore = bestScore,
+                        bestCycle = bestCycle,
+                        openAssistant = { page = Page.Assistant },
+                        openGame = { game = ArcadeState(); page = Page.Game }
+                    )
+                    Page.Assistant -> AssistantScreen(onBack = { page = Page.Home })
+                    Page.Game -> ArcadeScreen(
+                        state = game,
+                        onState = { game = it },
+                        onBack = { page = Page.Home },
+                        onGameOver = { score, cycle ->
+                            if (score > bestScore) bestScore = score
+                            if (cycle > bestCycle) bestCycle = cycle
+                            prefs.edit().putInt("best_score", bestScore).putInt("best_cycle", bestCycle).apply()
+                        }
+                    )
+                }
             }
         }
     }
@@ -119,7 +129,11 @@ private fun NextHelpApp() {
 
 @Composable
 private fun HomeScreen(bestScore: Int, bestCycle: Int, openAssistant: () -> Unit, openGame: () -> Unit) {
-    Column(Modifier.fillMaxSize().padding(horizontal = 22.dp, vertical = 28.dp), verticalArrangement = Arrangement.spacedBy(18.dp)) {
+    val uriHandler = LocalUriHandler.current
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 22.dp, vertical = 28.dp),
+        verticalArrangement = Arrangement.spacedBy(18.dp)
+    ) {
         Text("ZEEDATIK  •  NEXTHELP", color = Mint, fontSize = 13.sp, fontWeight = FontWeight.Bold, letterSpacing = 2.sp)
         Text("Tu compañero\nde misión.", color = Color.White, fontSize = 34.sp, lineHeight = 38.sp, fontWeight = FontWeight.Black)
         Text("Asistencia para tus reuniones y un arcade para el descanso.", color = Muted, fontSize = 16.sp)
@@ -140,8 +154,11 @@ private fun HomeScreen(bestScore: Int, bestCycle: Int, openAssistant: () -> Unit
             action = "Jugar ahora",
             onClick = openGame
         )
-        Spacer(Modifier.weight(1f))
         Text("La demo escrita y el juego funcionan sin conexión. El dictado depende del servicio de voz del dispositivo.", color = Muted, fontSize = 12.sp, modifier = Modifier.align(Alignment.CenterHorizontally))
+        TextButton(
+            onClick = { uriHandler.openUri("https://github.com/LuisRan/NextHelp/blob/main/docs/legal/PRIVACY.android.es.md") },
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        ) { Text("Aviso de privacidad") }
     }
 }
 
@@ -178,13 +195,14 @@ private fun AssistantScreen(onBack: () -> Unit) {
         }
     }
 
-    Column(Modifier.fillMaxSize().padding(18.dp)) {
+    Column(Modifier.fillMaxSize().imePadding().padding(18.dp)) {
         TopBar("Asistente", onBack, trailing = { TextButton(onClick = { showSettings = !showSettings }) { Text("API", color = Mint) } })
         if (showSettings) {
             OutlinedTextField(apiBase, { apiBase = it }, label = { Text("URL base de API (opcional)") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             Spacer(Modifier.height(7.dp))
             OutlinedTextField(bearer, { bearer = it }, label = { Text("Token de sesión (no se guarda)") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
             Text("La API debe implementar POST /v1/assistant/answer. El token solo vive en memoria mientras esta pantalla está abierta.", color = Muted, fontSize = 12.sp)
+            Text("Al pulsar Responder, tu pregunta y el token opcional se envían al servidor que configures.", color = Muted, fontSize = 12.sp)
         }
         Spacer(Modifier.height(10.dp))
         Text("Pregunta sobre tu reunión", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)

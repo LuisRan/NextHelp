@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -94,7 +93,7 @@ internal fun ArcadeScreen(state: ArcadeState, onState: (ArcadeState) -> Unit, on
             Text("★ ${state.score}   ♥ ${"■".repeat(state.lives.coerceAtLeast(0))}", color = PixelCream, fontWeight = FontWeight.Bold, fontSize = 13.sp)
         }
 
-        BoxWithConstraints(Modifier.fillMaxWidth().weight(1f).border(2.dp, Color(0xFF53627E), RoundedCornerShape(12.dp))) {
+        Box(Modifier.fillMaxWidth().weight(1f).border(2.dp, Color(0xFF53627E), RoundedCornerShape(12.dp))) {
             Canvas(Modifier.fillMaxSize()) {
                 val w = size.width
                 val h = size.height
